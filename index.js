@@ -3,8 +3,11 @@ var fs = require('fs');
 var Utils = require('./utils');
 var Twitter = require('twitter');
 
+//set process folder
+process.chdir(__dirname);
 dotenv.config();
 
+// Init new twitter client
 var client = new Twitter({
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
   consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -18,7 +21,9 @@ fs.readFile('./data/words.txt', 'utf8', function(err, data) {
     if (err) {
         Utils.log(err);
     } else {
+        // Get keywords from `data\words.txt` as array
         var keywords = Utils.getMatches(data, regLines);
+        // Shuffle keywords to change search priority
         var keywordsShuffled = Utils.shuffleArray(keywords);
 
         var params = {
@@ -27,7 +32,9 @@ fs.readFile('./data/words.txt', 'utf8', function(err, data) {
             result_type: 'mixed'
         };
 
+        // Looking for tweets
         client.get('search/tweets', params, function(error, tweets, response) {
+            // Check for bad credentials
             if(error) {
                 Utils.log(error[0].message);
             } else {
@@ -39,14 +46,14 @@ fs.readFile('./data/words.txt', 'utf8', function(err, data) {
                             var user = status.user;
                             var accountProtected = user.protected;
                             var accountVerified = user.verified;
+                            // if the user has a protected account, we do not ask to follow him
                             if (accountProtected === true || accountVerified === true) {
-                                // if the user has a protected account, we do not ask to follow him
                                 iterateStatus(i + 1);
                             } else {
-                                // check if we already following him
                                 var paramsFollow = {
                                     user_id: user.id
                                 };
+                                // Check if we are already following him
                                 client.get('friendships/lookup', paramsFollow, (errLookup, relation, resLookup) => {
                                     if(errLookup) {
                                         Utils.log(errLookup[0].message);
@@ -57,6 +64,7 @@ fs.readFile('./data/words.txt', 'utf8', function(err, data) {
                                                 if(errFollow) {
                                                     iterateStatus(i + 1);
                                                 } else {
+                                                    // Trace the new following
                                                     Utils.log("We are now following : " + follow.name + " @" + follow.screen_name);
                                                     Utils.log("Reason : " + status.text);
                                                 }

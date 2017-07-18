@@ -1,5 +1,6 @@
 var formats = require('./dateFormat');
 var fs = require('fs');
+var path = require('path');
 
 module.exports.shuffleArray = function(array) {
     var i = 0
@@ -39,8 +40,9 @@ module.exports.getDateFormat = function(format, date) {
 
 module.exports.log = function(msg) {
     var currentDate = this.getDateFormat("dd-mm-yyyy hh:ii:ss");
-    var logDir = process.cwd() + "/log";
+    var logDir = process.cwd() + "/log/";
     var fileName = this.getDateFormat("dd-mm-yyyy") + ".txt";
+    var logPath = logDir + fileName;
 
     fs.access(logDir, (err) => {
         if(err) {
@@ -49,7 +51,7 @@ module.exports.log = function(msg) {
 
         var trace = "["+currentDate+"] " + msg + "\n";
 
-        fs.appendFile(process.cwd()+'/log/'+this.getDateFormat("dd-mm-yyyy")+".txt", trace, 'utf8', (err) => {
+        fs.appendFile(logPath, trace, 'utf8', (err) => {
             if (err) {
                 console.error(err);
             }
