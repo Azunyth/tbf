@@ -49,8 +49,6 @@ module.exports.log = function(msg) {
 
         var trace = "["+currentDate+"] " + msg + "\n";
 
-        console.log(trace);
-
         fs.appendFile(process.cwd()+'/log/'+this.getDateFormat("dd-mm-yyyy")+".txt", trace, 'utf8', (err) => {
             if (err) {
                 console.error(err);
